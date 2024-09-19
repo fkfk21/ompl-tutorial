@@ -1,6 +1,23 @@
+# Options: https://clang.llvm.org/docs/ClangFormatStyleOptions.html
 BasedOnStyle: Google
+
 IndentWidth: 2
-ColumnLimit: 120
+UseTab: Never
+ColumnLimit: 100
+
+# align the start of the line comments
+AlignTrailingComments:
+  Kind: Always
+  OverEmptyLines: 2
+
+# break settings
+AllowAllArgumentsOnNextLine: true
+AllowAllParametersOfDeclarationOnNextLine: true
+
 AllowShortFunctionsOnASingleLine: All
+AllowShortBlocksOnASingleLine: All
+
+AllowShortIfStatementsOnASingleLine: WithoutElse
+
 # SortIncludes: false
 
