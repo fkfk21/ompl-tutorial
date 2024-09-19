@@ -3,10 +3,8 @@
       {
         "name": "Linux",
         "includePath": [
-            // "${workspaceFolder}/**",  // ワークスペース内の全てのディレクトリを含める
             "/opt/ros/humble/include/ompl-1.6",
             "/usr/include/eigen3"
-            // "/usr/include/ompl-1.5"
         ],
         "defines": [],
         "compilerPath": "/usr/bin/g++",
