@@ -5,6 +5,7 @@
 #include <ompl/geometric/planners/rrt/RRTConnect.h>
 
 #include <iostream>
+#include <fstream>
 
 namespace ob = ompl::base;
 namespace og = ompl::geometric;
@@ -45,6 +46,7 @@ void plan() {
   // create a random start state
   ob::ScopedState<> start(space);
   start.random();
+
 
   // create a random goal state
   ob::ScopedState<> goal(space);
@@ -92,8 +94,8 @@ void planWithSimpleSetup() {
 
   // set the bounds for the R^3 part of SE(3)
   ob::RealVectorBounds bounds(3);
-  bounds.setLow(-1);
-  bounds.setHigh(1);
+  bounds.setLow(-10);
+  bounds.setHigh(10);
 
   space->setBounds(bounds);
 
@@ -104,11 +106,11 @@ void planWithSimpleSetup() {
   ss.setStateValidityChecker([](const ob::State *state) { return isStateValid(state); });
 
   // create a random start state
-  ob::ScopedState<> start(space);
+  ob::ScopedState<ob::SE3StateSpace> start(space);
   start.random();
 
   // create a random goal state
-  ob::ScopedState<> goal(space);
+  ob::ScopedState<ob::SE3StateSpace> goal(space);
   goal.random();
 
   // set the start and goal states
@@ -124,22 +126,91 @@ void planWithSimpleSetup() {
   if (solved) {
     std::cout << "Found solution:" << std::endl;
     // print the path to screen
+    ob::PlannerData data(ss.getSpaceInformation());
+    ss.getPlannerData(data);
+
+    std::ofstream resultfile("result.ply");
+    data.printPLY(resultfile);
+    resultfile.close();
+
     ss.simplifySolution();
     ss.getSolutionPath().print(std::cout);
+    ss.getSolutionPath().printAsMatrix(std::cout);
   } else
     std::cout << "No solution found" << std::endl;
 }
 
+void planInThreeDimention() {
+  // construct the state space we are planning in
+  auto space(std::make_shared<ob::RealVectorStateSpace>(3));
+
+  // set the bounds for the R^3 part of SE(3)
+  ob::RealVectorBounds bounds(3);
+  bounds.setLow(-10);
+  bounds.setHigh(10);
+
+  space->setBounds(bounds);
+
+  // define a simple setup class
+  og::SimpleSetup ss(space);
+
+  // set state validity checking for this space
+  ss.setStateValidityChecker([](const ob::State *state) { return isStateValid(state); });
+
+  // create a random start state
+  ob::ScopedState<ob::RealVectorStateSpace> start(space);
+  start.random();
+
+  // create a random goal state
+  ob::ScopedState<ob::RealVectorStateSpace> goal(space);
+  goal.random();
+
+  // set the start and goal states
+  ss.setStartAndGoalStates(start, goal);
+
+  // this call is optional, but we put it in to get more output information
+  ss.setup();
+  ss.print();
+
+  // attempt to solve the problem within one second of planning time
+  ob::PlannerStatus solved = ss.solve(1.0);
+
+  if (solved) {
+    std::cout << "Found solution:" << std::endl;
+    // print the path to screen
+    ob::PlannerData data(ss.getSpaceInformation());
+    ss.getPlannerData(data);
+
+    std::ofstream resultfile("result.ply");
+    data.printPLY(resultfile, true);
+    resultfile.close();
+
+    // get num of vertices
+    std::cout << "Num of vertices: " << data.numVertices() << std::endl;
+
+    ss.simplifySolution();
+    ss.getSolutionPath().print(std::cout);
+    ss.getSolutionPath().printAsMatrix(std::cout);
+  } else
+    std::cout << "No solution found" << std::endl;
+}
+
+
+
 int main(int /*argc*/, char ** /*argv*/) {
   std::cout << "OMPL version: " << OMPL_VERSION << std::endl;
 
-  std::cout << "" << std::endl;
+  // std::cout << "Plan without Simple Setup" << std::endl;
 
-  plan();
+  // plan();
 
-  std::cout << std::endl << std::endl;
+  // std::cout << std::endl << std::endl;
 
-  planWithSimpleSetup();
+  // std::cout << "Plan with Simple Setup" << std::endl;
+  // planWithSimpleSetup();
+
+  std::cout << "Plan in 3D" << std::endl;
+  planInThreeDimention();
 
   return 0;
 }
