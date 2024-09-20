@@ -16,7 +16,7 @@ install_common_dependencies()
 {
     # install most dependencies via apt-get
     ${SUDO} apt-get -y update
-    ${SUDO} apt-get -y upgrade
+    # ${SUDO} apt-get -y upgrade
     # We explicitly set the C++ compiler to g++, the default GNU g++ compiler. This is
     # needed because we depend on system-installed libraries built with g++ and linked
     # against libstdc++. In case `c++` corresponds to `clang++`, code will not build, even
